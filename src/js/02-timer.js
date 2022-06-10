@@ -13,56 +13,45 @@ const dataMinutes = document.querySelector('[data-minutes]');
 const dataSeconds = document.querySelector('[data-seconds]');
 
 // Defining a timer variable
-let timer = null;
+startBtn.disabled = true;
 
-disableBtn(startBtn);
+let counterDown;
 
-const options = {
+
+flatpickr('#datetime-picker', {
   enableTime: true,
   time_24hr: true,
   defaultDate: new Date(),
   minuteIncrement: 1,
-  onClose(selectedDate) {
-    const currentDate = new Date();
-    if (selectedDate[0] <= currentDate) {
-      disableBtn(startBtn);
-      Notiflix.Notify.failure('Wybierz date przyszłą');
+  onClose(selectedDates) {
+    const currentDate = new Date().getTime();
+    const selectedDate = selectedDates[0].getTime();
+
+    if (selectedDate <= currentDate) {
+      Notiflix.Notify.failure('Please choose a date in the future');
+      startBtn.disabled = true;
     } else {
-      unDisableBtn(startBtn);
+      startBtn.disabled = false;
+      clearInterval(counterDown);
+      dataDays.innerHTML = '00';
+      dataHours.innerHTML = '00';
+      dataMinutes.innerHTML = '00';
+      dataSeconds.innerHTML = '00';
     }
   },
-};
+});
 
-flatpickr(datepicker, options);
-
-startBtn.addEventListener('click', countdownTime);
-
-function countdownTime() {
-  timer = setInterval(() => {
-    disableBtn(startBtn);
-
-    const pickedDateMs = new Date(datepicker.value).getTime();
-    const currentDateMs = new Date().getTime();
-    const timeLeft = pickedDateMs - currentDateMs;
-
-    const { days, hours, minutes, seconds } = convertMs(timeLeft);
-
-    dataDays.innerHTML = String(days).length < 2 ? addLeadingZero(days) : days;
-    dataHours.innerHTML =
-      String(hours).length < 2 ? addLeadingZero(hours) : hours;
-    dataMinutes.innerHTML =
-      String(minutes).length < 2 ? addLeadingZero(minutes) : minutes;
-    dataSeconds.innerHTML =
-      String(seconds).length < 2 ? addLeadingZero(seconds) : seconds;
-
-    if (timeLeft < 1000) {
-      clearInterval(timer);
-      unDisableBtn(startBtn);
-    }
-  }, 1000);
-}
 
 function convertMs(ms) {
+  counterDown = setInterval(() => {
+    const currentDate = new Date().getTime();
+
+    const datePickerMs = new Date(
+      datePicker.value.replace(/-/g, '/')
+    ).getTime();
+    ms = datePickerMs - currentDate;
+    
+
   const second = 1000;
   const minute = second * 60;
   const hour = minute * 60;
@@ -73,18 +62,22 @@ function convertMs(ms) {
   const minutes = Math.floor(((ms % day) % hour) / minute);
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
-  return { days, hours, minutes, seconds };
+   const addLeadingZero = value => value.toString().padStart(2, '0');
+    dataDays.innerHTML = addLeadingZero(days);
+    dataHours.innerHTML = addLeadingZero(hours);
+    dataMinutes.innerHTML = addLeadingZero(minutes);
+    dataSeconds.innerHTML = addLeadingZero(seconds);
+
+    startBtn.disabled = true;
+
+    if (ms <= 0) {
+      clearInterval(counterDown);
+      dataDays.innerHTML = '00';
+      dataHours.innerHTML = '00';
+      dataMinutes.innerHTML = '00';
+      dataSeconds.innerHTML = '00';
+    }
+  }, 1000);
 }
 
-function addLeadingZero(value) {
-  const stringValue = String(value);
-  return stringValue.padStart(2, '0');
-}
-
-function unDisableBtn(elem) {
-  elem.disabled = false;
-}
-
-function disableBtn(elem) {
-  elem.disabled = true;
-}
+startBtn.addEventListener('click', convertMs);
