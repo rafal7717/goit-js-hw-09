@@ -5,19 +5,18 @@ import 'flatpickr/dist/flatpickr.min.css';
 import Notiflix from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.5.min.css';
 
-const startBtn = document.querySelector('button[data-start]');
-const datepicker = document.querySelector('#datetime-picker');
-const dataDays = document.querySelector('[data-days]');
-const dataHours = document.querySelector('[data-hours]');
-const dataMinutes = document.querySelector('[data-minutes]');
-const dataSeconds = document.querySelector('[data-seconds]');
+const startBtn = document.querySelector('button[data-start');
+const datePicker = document.querySelector('#datetime-picker');
+const dataDays = document.querySelector('[data-days');
+const dataHours = document.querySelector('[data-hours');
+const dataMinutes = document.querySelector('[data-minutes');
+const dataSeconds = document.querySelector('[data-seconds');
 
-// Defining a timer variable
 startBtn.disabled = true;
 
 let counterDown;
 
-
+// flatpickr library
 flatpickr('#datetime-picker', {
   enableTime: true,
   time_24hr: true,
@@ -41,7 +40,6 @@ flatpickr('#datetime-picker', {
   },
 });
 
-
 function convertMs(ms) {
   counterDown = setInterval(() => {
     const currentDate = new Date().getTime();
@@ -50,19 +48,23 @@ function convertMs(ms) {
       datePicker.value.replace(/-/g, '/')
     ).getTime();
     ms = datePickerMs - currentDate;
-    
 
-  const second = 1000;
-  const minute = second * 60;
-  const hour = minute * 60;
-  const day = hour * 24;
+    const second = 1000;
+    const minute = second * 60;
+    const hour = minute * 60;
+    const day = hour * 24;
 
-  const days = Math.floor(ms / day);
-  const hours = Math.floor((ms % day) / hour);
-  const minutes = Math.floor(((ms % day) % hour) / minute);
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+    // Remaining days
+    const days = Math.floor(ms / day);
+    // Remaining hours
+    const hours = Math.floor((ms % day) / hour);
+    // Remaining minutes
+    const minutes = Math.floor(((ms % day) % hour) / minute);
+    // Remaining seconds
+    const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
-   const addLeadingZero = value => value.toString().padStart(2, '0');
+    //add leading zero
+    const addLeadingZero = value => value.toString().padStart(2, '0');
     dataDays.innerHTML = addLeadingZero(days);
     dataHours.innerHTML = addLeadingZero(hours);
     dataMinutes.innerHTML = addLeadingZero(minutes);
